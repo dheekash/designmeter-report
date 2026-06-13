@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>DesignMeter — Analytics Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ── Tokens ─────────────────────────────────────────── */
+:root {
+  --brand:       #5C6795;
+  --navy:        #194891;
+  --blue-mid:    #6996B7;
+  --blue-light:  #9EB1C5;
+  --gray-soft:   #C2CFDF;
+  --bg-base:     #E7ECF1;
+  --surf-dark:   #252429;
+  --near-black:  #0F0F11;
+  --warm:        #85594B;
+  --success:     #2D7D5A;
+
+  /* Light */
+  --bg:          #E7ECF1;
+  --surface:     #FFFFFF;
+  --surface-2:   #F8FAFC;
+  --raised:      #FFFFFF;
+  --border:      #C2CFDF;
+  --border-sub:  rgba(155,175,200,.38);
+  --text:        #0F0F11;
+  --text-sub:    #3D4759;
+  --text-muted:  #6B7A90;
+  --primary:     #5C6795;
+  --primary-fg:  #FFFFFF;
+  --heading:     #194891;
+  --r:           12px;
+  --r-sm:        8px;
+  --r-lg:        16px;
+  --nav-h:       58px;
+  --sh-sm:       0 1px 3px rgba(28,40,70,.08),0 1px 2px rgba(28,40,70,.04);
+  --sh-md:       0 4px 14px rgba(28,40,70,.10),0 2px 4px rgba(28,40,70,.05);
+  --sh-lg:       0 12px 36px rgba(28,40,70,.12),0 4px 8px rgba(28,40,70,.06);
+}
+[data-theme="dark"] {
+  --bg:          #0F0F11;
+  --surface:     #252429;
+  --surface-2:   #1C1B1F;
+  --raised:      #2E2C33;
+  --border:      rgba(255,255,255,.09);
+  --border-sub:  rgba(255,255,255,.05);
+  --text:        #F0F2F7;
+  --text-sub:    #C2CFDF;
+  --text-muted:  #7A8599;
+  --primary:     #6996B7;
+  --primary-fg:  #FFFFFF;
+  --heading:     #FFFFFF;
+  --sh-sm:       0 1px 3px rgba(0,0,0,.45);
+  --sh-md:       0 4px 14px rgba(0,0,0,.50);
+  --sh-lg:       0 12px 36px rgba(0,0,0,.55);
+}
+
+/* ── Reset ──────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px}
+body{
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.6;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+  transition:background .3s,color .3s;
+}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+/* ── Skip ───────────────────────────────────────────── */
+.skip{position:absolute;top:-100px;left:1rem;z-index:9999;background:var(--primary);color:#fff;padding:.5rem 1rem;border-radius:var(--r-sm);font-size:.875rem}
+.skip:focus{top:1rem}
+
+/* ── Helpers ────────────────────────────────────────── */
+.mono{font-family:'JetBrains Mono',monospace}
+.eyebrow{display:inline-flex;align-items:center;gap:.5rem;font-size:.6875rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--primary);margin-bottom:.875rem;font-family:'JetBrains Mono',monospace}
+.eyebrow::before{content:'';width:16px;height:1.5px;background:var(--primary)}
+h2{font-size:clamp(1.6rem,3vw,2.25rem);font-weight:700;letter-spacing:-.04em;line-height:1.1;color:var(--heading)}
+.sec-sub{color:var(--text-muted);margin-top:.5rem;font-size:.9375rem;max-width:44ch;line-height:1.65}
+.sec-head{margin-bottom:clamp(1.75rem,3.5vw,3rem)}
+.wrap{max-width:1080px;margin:0 auto}
+.section{padding:clamp(3.5rem,7vw,6rem) clamp(1.25rem,4vw,3.5rem)}
+.section-alt{background:var(--surface)}
+
+/* Severity colors */
+.sev-critical{color:var(--warm)}
+.sev-high    {color:var(--brand)}
+.sev-medium  {color:var(--blue-mid)}
+.sev-low     {color:var(--blue-light)}
+.sev-success {color:var(--success)}
+.badge{display:inline-flex;align-items:center;gap:.3rem;font-size:.6875rem;font-weight:600;padding:.2rem .6rem;border-radius:100px;letter-spacing:.02em}
+.badge-critical{background:rgba(133,89,75,.12);color:var(--warm);border:1px solid rgba(133,89,75,.22)}
+.badge-high    {background:rgba(92,103,149,.1); color:var(--brand);border:1px solid rgba(92,103,149,.2)}
+.badge-medium  {background:rgba(105,150,183,.1);color:var(--blue-mid);border:1px solid rgba(105,150,183,.2)}
+.badge-low     {background:rgba(158,177,197,.12);color:#5a7488;border:1px solid rgba(158,177,197,.25)}
+.badge-success {background:rgba(45,125,90,.1);  color:var(--success);border:1px solid rgba(45,125,90,.2)}
+
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh-sm)}
+.card-lift{transition:border-color .2s,transform .2s,box-shadow .2s}
+.card-lift:hover{border-color:color-mix(in srgb,var(--primary) 35%,transparent);transform:translateY(-2px);box-shadow:var(--sh-md)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:.4375rem;padding:.5625rem 1.25rem;border-radius:var(--r-sm);font-size:.875rem;font-weight:500;border:none;transition:all .15s;text-decoration:none}
+.btn-primary{background:var(--primary);color:var(--primary-fg);box-shadow:var(--sh-sm)}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px);box-shadow:var(--sh-md)}
+.btn-secondary{background:var(--surface);border:1px solid var(--border);color:var(--text-sub)}
+.btn-secondary:hover{border-color:var(--primary);color:var(--text);transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--text-muted);padding:.5rem .875rem;font-size:.8125rem}
+.btn-ghost:hover{color:var(--text)}
+
+/* Progress bar */
+.prog-bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;transition:width 1s cubic-bezier(.4,0,.2,1)}
+
+/* Radial ring */
+.ring-wrap{position:relative;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ring-wrap svg{transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:var(--border);stroke-width:5}
+.ring-fill{fill:none;stroke-width:5;stroke-linecap:round;transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1)}
+.ring-text{position:absolute;text-align:center;pointer-events:none}
+
+/* Reveal */
+.reveal{opacity:0;transform:translateY(12px);transition:opacity .5s ease,transform .5s ease}
+.reveal.in{opacity:1;transform:none}
+.d1{transition-delay:.07s}.d2{transition-delay:.14s}.d3{transition-delay:.21s}
+
+/* ── NAV ─────────────────────────────────────────────── */
+nav{
+  position:fixed;inset:0 0 auto;height:var(--nav-h);z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 clamp(1.25rem,4vw,3.5rem);
+  background:color-mix(in srgb,var(--bg) 85%,transparent);
+  backdrop-filter:blur(20px) saturate(160%);
+  -webkit-backdrop-filter:blur(20px) saturate(160%);
+  border-bottom:1px solid var(--border-sub);
+  transition:background .3s;
+}
+.nav-logo{display:flex;align-items:center;gap:.625rem;font-size:.9rem;font-weight:700;letter-spacing:-.02em;color:var(--heading)}
+.nav-logo-mark{width:26px;height:26px;border-radius:6px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:800;letter-spacing:.01em;flex-shrink:0}
+.nav-links{display:flex;align-items:center;gap:.125rem;list-style:none}
+.nav-links a{display:block;padding:.35rem .8rem;border-radius:100px;font-size:.8rem;color:var(--text-muted);transition:color .15s,background .15s}
+.nav-links a:hover{color:var(--text);background:var(--border-sub)}
+.nav-right{display:flex;align-items:center;gap:.5rem}
+.theme-toggle{display:flex;align-items:center;gap:.1rem;background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:.18rem}
+.theme-btn{width:26px;height:26px;border-radius:100px;display:flex;align-items:center;justify-content:center;border:none;background:transparent;color:var(--text-muted);transition:background .15s,color .15s}
+.theme-btn.active{background:var(--primary);color:#fff}
+.hamburger{display:none;flex-direction:column;gap:4px;background:none;border:none;padding:.3rem}
+.hamburger span{display:block;width:18px;height:1.5px;background:var(--text-sub);border-radius:2px;transition:.25s}
+.mobile-menu{display:none;position:fixed;top:var(--nav-h);inset-inline:0;background:color-mix(in srgb,var(--bg) 96%,transparent);backdrop-filter:blur(24px);border-bottom:1px solid var(--border-sub);padding:.75rem clamp(1.25rem,4vw,3.5rem) 1.25rem;flex-direction:column;gap:.125rem;z-index:99}
+.mobile-menu.open{display:flex}
+.mobile-menu a{padding:.6rem .75rem;border-radius:var(--r-sm);font-size:.875rem;color:var(--text-sub);transition:background .15s,color .15s}
+.mobile-menu a:hover{background:var(--surface);color:var(--text)}
+
+/* ── HERO ─────────────────────────────────────────────── */
+#hero{
+  padding:calc(var(--nav-h) + clamp(2.5rem,5vw,4rem)) clamp(1.25rem,4vw,3.5rem) clamp(2.5rem,5vw,4rem);
+  position:relative;overflow:hidden;
+}
+/* Ambient glow */
+#hero::before{
+  content:'';position:absolute;top:-200px;right:-100px;width:600px;height:600px;
+  background:radial-gradient(ellipse,rgba(92,103,149,.12) 0%,transparent 65%);
+  pointer-events:none;
+}
+#hero::after{
+  content:'';position:absolute;bottom:-150px;left:-50px;width:400px;height:400px;
+  background:radial-gradient(ellipse,rgba(105,150,183,.08) 0%,transparent 65%);
+  pointer-events:none;
+}
+.hero-inner{max-width:1080px;margin:0 auto;position:relative;z-index:1}
+
+/* Site being audited */
+.audit-target{
+  display:inline-flex;align-items:center;gap:.625rem;
+  background:var(--surface);border:1px solid var(--border);border-radius:100px;
+  padding:.3125rem 1rem;margin-bottom:2rem;font-size:.75rem;color:var(--text-muted);
+  box-shadow:var(--sh-sm);
+}
+.audit-dot{width:6px;height:6px;border-radius:50%;background:#3EB489;box-shadow:0 0 7px rgba(62,180,137,.5);animation:blink 2.5s ease infinite;flex-shrink:0}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+
+.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(2rem,4vw,4rem);align-items:start}
+
+.hero-title{font-size:clamp(1.75rem,3.5vw,2.75rem);font-weight:700;letter-spacing:-.045em;line-height:1.08;color:var(--heading);margin-bottom:.75rem}
+.hero-desc{color:var(--text-sub);font-size:.9375rem;line-height:1.75;max-width:44ch;margin-bottom:2rem}
+
+/* Score summary row */
+.hero-scores{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:2rem}
+.score-chip{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1rem 1.125rem;box-shadow:var(--sh-sm)}
+.score-chip-n{font-size:1.5rem;font-weight:700;letter-spacing:-.04em;color:var(--heading);line-height:1;font-family:'JetBrains Mono',monospace}
+.score-chip-l{font-size:.6875rem;color:var(--text-muted);margin-top:.25rem}
+
+/* Main score card (right) */
+.main-score-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:2rem;box-shadow:var(--sh-md);position:relative;overflow:hidden}
+.main-score-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(25,72,145,.04) 0%,transparent 55%);pointer-events:none}
+.score-card-label{font-size:.6875rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:1.5rem;font-family:'JetBrains Mono',monospace}
+.score-main-row{display:flex;align-items:center;gap:1.75rem;margin-bottom:1.75rem}
+.big-grade{font-size:3.5rem;font-weight:800;letter-spacing:-.05em;line-height:1;color:var(--navy)}
+.score-meta-col{flex:1}
+.score-pct{font-size:1.75rem;font-weight:700;letter-spacing:-.04em;color:var(--heading);font-family:'JetBrains Mono',monospace;line-height:1}
+.score-category{font-size:.8125rem;color:var(--text-sub);margin-top:.25rem}
+.score-details-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.score-detail{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-sm);padding:.625rem .75rem}
+.score-detail-l{font-size:.6875rem;color:var(--text-muted);margin-bottom:.1875rem}
+.score-detail-v{font-size:.875rem;font-weight:600;color:var(--heading)}
+
+/* ── CRITICAL FINDINGS ──────────────────────────────── */
+.findings-list{display:flex;flex-direction:column;gap:1rem}
+.finding-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem 1.75rem;box-shadow:var(--sh-sm);position:relative;overflow:hidden;transition:border-color .2s}
+.finding-card:hover{border-color:color-mix(in srgb,var(--warm) 30%,transparent)}
+.finding-accent{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
+.finding-accent.critical{background:var(--warm)}
+.finding-accent.high    {background:var(--brand)}
+.finding-accent.medium  {background:var(--blue-mid)}
+.finding-header{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1rem;flex-wrap:wrap}
+.finding-title{font-size:.9375rem;font-weight:600;color:var(--text)}
+.finding-body{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.75rem}
+.finding-cell-label{font-size:.6875rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.25rem;font-family:'JetBrains Mono',monospace}
+.finding-cell-val{font-size:.875rem;color:var(--text-sub);line-height:1.55}
+
+/* ── METRICS SECTION ─────────────────────────────────── */
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:.875rem}
+.metric-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh-sm)}
+.metric-card-head{padding:1.25rem 1.5rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;cursor:pointer;user-select:none}
+.metric-card-head:hover{background:var(--surface-2)}
+.metric-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--primary);background:color-mix(in srgb,var(--primary) 10%,transparent);flex-shrink:0}
+.metric-icon svg{width:15px;height:15px}
+.metric-name{font-size:.875rem;font-weight:600;color:var(--text)}
+.metric-score-row{display:flex;align-items:center;gap:.75rem;margin-top:.375rem}
+.metric-score{font-size:1.375rem;font-weight:700;letter-spacing:-.04em;font-family:'JetBrains Mono',monospace}
+.metric-chevron{width:16px;height:16px;color:var(--text-muted);transition:transform .25s;flex-shrink:0}
+.metric-card.open .metric-chevron{transform:rotate(180deg)}
+.metric-body{max-height:0;overflow:hidden;transition:max-height .35s ease}
+.metric-card.open .metric-body{max-height:400px}
+.metric-body-inner{padding:0 1.5rem 1.25rem;border-top:1px solid var(--border)}
+.metric-body-inner p{font-size:.875rem;color:var(--text-sub);line-height:1.65;margin:.875rem 0 .625rem}
+.metric-why{font-size:.8125rem;color:var(--text-muted);margin:.5rem 0 .75rem}
+.metric-rec{background:color-mix(in srgb,var(--primary) 6%,transparent);border:1px solid color-mix(in srgb,var(--primary) 15%,transparent);border-radius:var(--r-sm);padding:.75rem 1rem;font-size:.8125rem;color:var(--text-sub);line-height:1.6}
+.metric-rec-label{font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--primary);margin-bottom:.25rem}
+
+/* ── DESKTOP VS MOBILE ──────────────────────────────── */
+.comparison-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+.device-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-md)}
+.device-frame{background:var(--surface-2);border-bottom:1px solid var(--border);padding:1.5rem;position:relative}
+.device-screen{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;position:relative}
+.device-screen-desktop{aspect-ratio:16/10}
+.device-screen-mobile{aspect-ratio:9/16;max-width:160px;margin:0 auto}
+.device-mockup{width:100%;height:100%;display:flex;flex-direction:column}
+.mockup-bar{height:28px;background:var(--surface-2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 .75rem;gap:.375rem}
+.mockup-dot{width:7px;height:7px;border-radius:50%}
+.mockup-content{flex:1;padding:.75rem;display:grid;gap:.4rem}
+.mockup-hero-block{height:40%;background:color-mix(in srgb,var(--primary) 8%,transparent);border-radius:4px}
+.mockup-row{height:10px;background:var(--border);border-radius:3px}
+.mockup-row.short{width:60%}
+.mockup-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.375rem;margin-top:.25rem}
+.mockup-block{height:40px;background:var(--border);border-radius:3px}
+.device-info{padding:1.25rem 1.5rem}
+.device-type{font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:.375rem;font-family:'JetBrains Mono',monospace}
+.device-score-row{display:flex;align-items:baseline;gap:.5rem;margin-bottom:.875rem}
+.device-score-n{font-size:1.5rem;font-weight:700;letter-spacing:-.04em;color:var(--heading);font-family:'JetBrains Mono',monospace}
+.device-findings{display:flex;flex-direction:column;gap:.5rem}
+.device-finding{display:flex;align-items:flex-start;gap:.625rem;font-size:.8125rem;color:var(--text-sub);line-height:1.5}
+.device-finding-dot{width:5px;height:5px;border-radius:50%;background:var(--warm);margin-top:.45em;flex-shrink:0}
+.device-finding-dot.ok{background:var(--success)}
+
+/* ── VIEWPORT ANALYSIS ──────────────────────────────── */
+.viewport-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.875rem}
+.viewport-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.375rem 1.5rem;box-shadow:var(--sh-sm);transition:border-color .2s,transform .2s,box-shadow .2s}
+.viewport-card:hover{border-color:color-mix(in srgb,var(--primary) 30%,transparent);transform:translateY(-2px);box-shadow:var(--sh-md)}
+.viewport-icon{width:36px;height:36px;border-radius:9px;background:color-mix(in srgb,var(--primary) 9%,transparent);display:flex;align-items:center;justify-content:center;color:var(--primary);margin-bottom:.875rem}
+.viewport-icon svg{width:17px;height:17px}
+.viewport-device{font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:.25rem;font-family:'JetBrains Mono',monospace}
+.viewport-score{font-size:1.75rem;font-weight:700;letter-spacing:-.04em;color:var(--heading);font-family:'JetBrains Mono',monospace;line-height:1;margin-bottom:.75rem}
+.viewport-findings{list-style:none;display:flex;flex-direction:column;gap:.4rem}
+.viewport-findings li{font-size:.8rem;color:var(--text-muted);padding-left:.875rem;position:relative;line-height:1.5}
+.viewport-findings li::before{content:'';position:absolute;left:0;top:.52em;width:4px;height:4px;border-radius:50%;background:var(--border)}
+
+/* ── PRIORITY STACK ──────────────────────────────────── */
+.priority-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.priority-col{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-sm)}
+.priority-col-head{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border)}
+.priority-col-tier{font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.25rem;font-family:'JetBrains Mono',monospace}
+.priority-col-tier.critical{color:var(--warm)}
+.priority-col-tier.high    {color:var(--brand)}
+.priority-col-tier.medium  {color:var(--blue-mid)}
+.priority-col-title{font-size:.9375rem;font-weight:600;color:var(--heading)}
+.priority-items{padding:.875rem 1.5rem;display:flex;flex-direction:column;gap:.625rem}
+.priority-item{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-sm);padding:.875rem 1rem}
+.priority-item-name{font-size:.8125rem;font-weight:600;color:var(--text);margin-bottom:.5rem}
+.priority-item-meta{display:flex;gap:.75rem;flex-wrap:wrap}
+.priority-meta-chip{font-size:.6875rem;color:var(--text-muted);display:flex;align-items:center;gap:.3rem}
+.priority-meta-chip span{font-weight:600;color:var(--text-sub)}
+
+/* ── EXEC SUMMARY ────────────────────────────────────── */
+.exec-grid{display:grid;grid-template-columns:1fr 2fr;gap:2rem;align-items:start}
+.exec-metrics{display:flex;flex-direction:column;gap:.625rem}
+.exec-metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem 1.5rem;box-shadow:var(--sh-sm)}
+.exec-metric-n{font-size:2rem;font-weight:700;letter-spacing:-.05em;color:var(--heading);line-height:1;font-family:'JetBrains Mono',monospace}
+.exec-metric-l{font-size:.75rem;color:var(--text-muted);margin-top:.25rem}
+.exec-findings{display:flex;flex-direction:column;gap:.75rem}
+.exec-finding{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem 1.5rem;box-shadow:var(--sh-sm);display:flex;align-items:flex-start;gap:1rem}
+.exec-finding-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.exec-finding-icon.critical{background:rgba(133,89,75,.1);color:var(--warm)}
+.exec-finding-icon.high{background:rgba(92,103,149,.1);color:var(--brand)}
+.exec-finding-icon.success{background:rgba(45,125,90,.1);color:var(--success)}
+.exec-finding-icon svg{width:15px;height:15px}
+.exec-finding-title{font-size:.875rem;font-weight:600;color:var(--text);margin-bottom:.25rem}
+.exec-finding-desc{font-size:.8125rem;color:var(--text-muted);line-height:1.55}
+
+/* ── EXPERT REVIEW ───────────────────────────────────── */
+.review-list{display:flex;flex-direction:column;gap:.75rem}
+.review-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh-sm);overflow:hidden}
+.review-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1.25rem 1.5rem;cursor:pointer;user-select:none;transition:background .15s}
+.review-head:hover{background:var(--surface-2)}
+.review-title{font-size:.9375rem;font-weight:600;color:var(--text)}
+.review-score-chip{font-size:.8125rem;font-weight:600;font-family:'JetBrains Mono',monospace;padding:.2rem .625rem;border-radius:100px;flex-shrink:0}
+.review-chevron{width:16px;height:16px;color:var(--text-muted);transition:transform .25s;flex-shrink:0}
+.review-item.open .review-chevron{transform:rotate(180deg)}
+.review-body{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.review-item.open .review-body{max-height:600px}
+.review-body-inner{padding:0 1.5rem 1.5rem;border-top:1px solid var(--border)}
+.review-summary{font-size:.875rem;color:var(--text-sub);line-height:1.7;margin:1rem 0}
+.review-cols{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.review-col-label{font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:.5rem;font-family:'JetBrains Mono',monospace}
+.review-col ul{list-style:none;display:flex;flex-direction:column;gap:.375rem}
+.review-col li{font-size:.8125rem;color:var(--text-sub);padding-left:.875rem;position:relative;line-height:1.5}
+.review-col li::before{content:'';position:absolute;left:0;top:.52em;width:4px;height:4px;border-radius:50%}
+.review-col.strengths li::before{background:var(--success)}
+.review-col.weaknesses li::before{background:var(--warm)}
+
+/* ── ROADMAP ─────────────────────────────────────────── */
+.roadmap-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.roadmap-col{position:relative}
+.roadmap-col-label{font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:1rem;font-family:'JetBrains Mono',monospace;display:flex;align-items:center;gap:.5rem}
+.roadmap-col-label::before{content:'';width:8px;height:8px;border-radius:50%}
+.roadmap-col:nth-child(1) .roadmap-col-label::before{background:var(--warm)}
+.roadmap-col:nth-child(2) .roadmap-col-label::before{background:var(--brand)}
+.roadmap-col:nth-child(3) .roadmap-col-label::before{background:var(--blue-mid)}
+.roadmap-items{display:flex;flex-direction:column;gap:.625rem}
+.roadmap-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1rem 1.125rem;box-shadow:var(--sh-sm)}
+.roadmap-item-name{font-size:.8125rem;font-weight:600;color:var(--text);margin-bottom:.5rem}
+.roadmap-meta{display:flex;flex-direction:column;gap:.3rem}
+.roadmap-meta-row{display:flex;justify-content:space-between;align-items:center}
+.roadmap-meta-label{font-size:.6875rem;color:var(--text-muted)}
+.roadmap-meta-val{font-size:.6875rem;font-weight:600;color:var(--text-sub)}
+
+/* ── CTA ─────────────────────────────────────────────── */
+#cta{
+  position:relative;overflow:hidden;
+  background:var(--navy);
+  padding:clamp(4rem,8vw,7rem) clamp(1.25rem,4vw,3.5rem);
+}
+#cta::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 70% at 75% 50%,rgba(105,150,183,.18) 0%,transparent 65%);pointer-events:none}
+#cta::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 40% 55% at 20% 30%,rgba(92,103,149,.15) 0%,transparent 65%);pointer-events:none}
+.cta-inner{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:1.2fr 0.8fr;gap:clamp(2rem,5vw,5rem);align-items:center;position:relative;z-index:1}
+.cta-label{font-size:.6875rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:1rem;font-family:'JetBrains Mono',monospace}
+.cta-heading{font-size:clamp(1.5rem,3.5vw,2.5rem);font-weight:700;letter-spacing:-.04em;line-height:1.12;color:#fff;margin-bottom:1rem}
+.cta-desc{font-size:.9375rem;color:rgba(255,255,255,.65);line-height:1.7;max-width:44ch;margin-bottom:2rem}
+.cta-actions{display:flex;gap:.75rem;flex-wrap:wrap}
+.btn-cta-primary{background:#fff;color:var(--navy);padding:.625rem 1.375rem;border-radius:var(--r-sm);font-size:.875rem;font-weight:600;transition:all .15s;border:none;display:inline-flex;align-items:center;gap:.4rem}
+.btn-cta-primary:hover{opacity:.92;transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.btn-cta-secondary{background:rgba(255,255,255,.1);color:#fff;padding:.625rem 1.25rem;border-radius:var(--r-sm);font-size:.875rem;font-weight:500;border:1px solid rgba(255,255,255,.2);transition:all .15s;display:inline-flex;align-items:center;gap:.4rem}
+.btn-cta-secondary:hover{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.35)}
+.btn-cta-ghost{color:rgba(255,255,255,.55);font-size:.8125rem;padding:.5rem 0;transition:color .15s;display:inline-flex;align-items:center;gap:.35rem;border:none;background:transparent}
+.btn-cta-ghost:hover{color:#fff}
+.cta-trust{display:flex;flex-direction:column;gap:.75rem}
+.trust-card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:var(--r);padding:1.25rem 1.5rem}
+.trust-card-n{font-size:1.75rem;font-weight:700;letter-spacing:-.04em;color:#fff;font-family:'JetBrains Mono',monospace;line-height:1}
+.trust-card-l{font-size:.75rem;color:rgba(255,255,255,.5);margin-top:.25rem}
+.trust-grid{display:grid;grid-template-columns:1fr 1fr;gap:.625rem}
+
+/* ── FOOTER ──────────────────────────────────────────── */
+footer{border-top:1px solid var(--border);padding:1.75rem clamp(1.25rem,4vw,3.5rem);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.footer-l{font-size:.8rem;color:var(--text-muted);display:flex;align-items:center;gap:.5rem}
+.footer-logo{font-weight:700;color:var(--heading);font-size:.8rem}
+.footer-r{display:flex;gap:1.5rem}
+.footer-r a{font-size:.8rem;color:var(--text-muted);transition:color .15s}
+.footer-r a:hover{color:var(--text)}
+
+/* ── RESPONSIVE ──────────────────────────────────────── */
+@media(max-width:1024px){
+  .priority-cols,.roadmap-cols{grid-template-columns:1fr}
+  .exec-grid{grid-template-columns:1fr}
+  .cta-inner{grid-template-columns:1fr}
+  .trust-grid{grid-template-columns:repeat(4,1fr)}
+  .viewport-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:860px){
+  .hero-grid{grid-template-columns:1fr}
+  .hero-scores{grid-template-columns:repeat(3,1fr)}
+  .comparison-grid{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+  .nav-links{display:none}
+  .hamburger{display:flex}
+  .hero-scores{grid-template-columns:1fr 1fr}
+  .metrics-grid{grid-template-columns:1fr}
+  .viewport-grid{grid-template-columns:1fr}
+  .score-details-grid{grid-template-columns:1fr}
+  .review-cols{grid-template-columns:1fr}
+  .finding-body{grid-template-columns:1fr}
+  .trust-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:400px){
+  .hero-scores{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<a href="#main" class="skip">Skip to main content</a>
+
+<!-- NAV -->
+<nav role="navigation" aria-label="Main">
+  <a href="#hero" class="nav-logo" aria-label="DesignMeter home">
+    <div class="nav-logo-mark" aria-hidden="true">DM</div>
+    DesignMeter
+  </a>
+  <ul class="nav-links" role="list">
+    <li><a href="#findings">Findings</a></li>
+    <li><a href="#metrics">Metrics</a></li>
+    <li><a href="#comparison">Analysis</a></li>
+    <li><a href="#priority">Roadmap</a></li>
+    <li><a href="#review">Expert Review</a></li>
+  </ul>
+  <div class="nav-right">
+    <div class="theme-toggle" role="group" aria-label="Theme">
+      <button class="theme-btn active" id="btnLight" aria-pressed="true" title="Light mode">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+      <button class="theme-btn" id="btnDark" aria-pressed="false" title="Dark mode">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+    <a href="#cta" class="btn btn-primary" style="font-size:.8rem;padding:.4rem .9rem">Get Full Report</a>
+    <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+<nav class="mobile-menu" id="mobileMenu" aria-label="Mobile">
+  <a href="#findings"  onclick="closeMobile()">Findings</a>
+  <a href="#metrics"   onclick="closeMobile()">Metrics</a>
+  <a href="#comparison" onclick="closeMobile()">Analysis</a>
+  <a href="#priority"  onclick="closeMobile()">Roadmap</a>
+  <a href="#review"    onclick="closeMobile()">Expert Review</a>
+  <a href="#cta"       onclick="closeMobile()">Get Full Report</a>
+</nav>
+
+<main id="main">
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-inner">
+    <div class="audit-target reveal">
+      <span class="audit-dot" aria-hidden="true"></span>
+      Auditing: acme-ecommerce.com &nbsp;·&nbsp; Report generated 13 Jun 2025
+    </div>
+    <div class="hero-grid">
+      <div>
+        <h1 class="hero-title reveal d1">Your analytics report is ready.</h1>
+        <p class="hero-desc reveal d2">We analysed 47 data points across performance, UX, conversion, accessibility, and mobile responsiveness. Here's what we found — and how to fix it.</p>
+        <div class="hero-scores reveal d2">
+          <div class="score-chip">
+            <div class="score-chip-n sev-critical">12</div>
+            <div class="score-chip-l">Critical issues</div>
+          </div>
+          <div class="score-chip">
+            <div class="score-chip-n sev-high">28</div>
+            <div class="score-chip-l">Improvements</div>
+          </div>
+          <div class="score-chip">
+            <div class="score-chip-n sev-success">7</div>
+            <div class="score-chip-l">Passing checks</div>
+          </div>
+        </div>
+        <div class="reveal d3" style="display:flex;gap:.75rem;flex-wrap:wrap">
+          <a href="#cta" class="btn btn-primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.45 2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.92z"/></svg>
+            Book Strategy Call
+          </a>
+          <a href="#findings" class="btn btn-secondary">View Findings</a>
+        </div>
+      </div>
+
+      <div class="main-score-card reveal d1">
+        <div class="score-card-label">Overall Performance Score</div>
+        <div class="score-main-row">
+          <div class="ring-wrap" style="width:88px;height:88px" aria-hidden="true">
+            <svg viewBox="0 0 88 88" width="88" height="88">
+              <circle class="ring-bg" cx="44" cy="44" r="38"/>
+              <circle class="ring-fill" id="heroRing" cx="44" cy="44" r="38" stroke="#194891" stroke-dasharray="239" stroke-dashoffset="96"/>
+            </svg>
+            <div class="ring-text">
+              <div style="font-size:1.125rem;font-weight:700;color:var(--heading);font-family:'JetBrains Mono',monospace">60</div>
+            </div>
+          </div>
+          <div class="score-meta-col">
+            <div class="big-grade">C+</div>
+            <div class="score-category">Needs Significant Improvement</div>
+            <div style="margin-top:.5rem"><span class="badge badge-critical">High Risk</span></div>
+          </div>
+        </div>
+        <div class="score-details-grid">
+          <div class="score-detail">
+            <div class="score-detail-l">Confidence Score</div>
+            <div class="score-detail-v">94%</div>
+          </div>
+          <div class="score-detail">
+            <div class="score-detail-l">Conversion Opportunity</div>
+            <div class="score-detail-v">+18–32%</div>
+          </div>
+          <div class="score-detail">
+            <div class="score-detail-l">Business Risk Level</div>
+            <div class="score-detail-v sev-critical">Critical</div>
+          </div>
+          <div class="score-detail">
+            <div class="score-detail-l">Issues Detected</div>
+            <div class="score-detail-v">47 findings</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CRITICAL FINDINGS -->
+<section id="findings" class="section section-alt" aria-label="Critical findings">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">Critical Findings</div>
+      <h2>Issues requiring immediate attention</h2>
+      <p class="sec-sub">These three issues are causing the most significant conversion and revenue loss.</p>
+    </div>
+    <div class="findings-list">
+
+      <div class="finding-card reveal">
+        <div class="finding-accent critical" aria-hidden="true"></div>
+        <div class="finding-header">
+          <div class="finding-title">Mobile checkout flow has 6 broken tap targets below 44px</div>
+          <span class="badge badge-critical">Critical</span>
+        </div>
+        <div class="finding-body">
+          <div>
+            <div class="finding-cell-label">Business Impact</div>
+            <div class="finding-cell-val">60% of your traffic is mobile. Broken tap targets directly cause cart abandonment at the most critical conversion step.</div>
+          </div>
+          <div>
+            <div class="finding-cell-label">Risk Level</div>
+            <div class="finding-cell-val sev-critical">Estimated 12–18% conversion loss on mobile devices</div>
+          </div>
+          <div>
+            <div class="finding-cell-label">Recommendation</div>
+            <div class="finding-cell-val">Increase all interactive elements to minimum 44×44px. Prioritise the "Add to Cart" and "Proceed to Checkout" buttons.</div>
+          </div>
+          <div>
+            <div class="finding-cell-label">Expected Outcome</div>
+            <div class="finding-cell-val">8–14% increase in mobile checkout completion within 2 weeks of fix.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="finding-card reveal d1">
+        <div class="finding-accent critical" aria-hidden="true"></div>
+        <div class="finding-header">
+          <div class="finding-title">Page load time exceeds 4.2s on 3G — 2.8s above acceptable threshold</div>
+          <span class="badge badge-critical">Critical</span>
+        </div>
+        <div class="finding-body">
+          <div>
+            <div class="finding-cell-label">Business Impact</div>
+            <div class="finding-cell-val">Every 1-second delay reduces conversion by 7%. At 4.2s, you're losing an estimated 22% of potential customers before they see your product.</div>
+          </div>
+          <div>
+            <div class="finding-cell-label">Risk Level</div>
+            <div class="finding-cell-val sev-critical">Direct revenue impact — measurable within analytics</div>
+          </div>
+          <div>
+            <div class="finding-cell-label">Recommendation</div>
+            <div class="finding-cell-val">Compress images (unoptimised assets found: 14 images over 500KB), enable lazy loading, defer non-critical JS.</div>
+          </div>
+          <div>
+            <div class="finding-cell-label">Expected Outcome</div>
+            <div class="finding-cell-val">Reducing to &lt;2s load time could recover 10–22% of currently lost conversions.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="finding-card reveal d2">
+        <div class="finding-accent high" aria-hidden="true"></div>
+        <div class="finding-header">
+          <div class="finding-title">4 form fields missing accessible labels — WCAG 2.1 AA failure</div>
+          <span class="badge badge-high">High</span>
+        </div>
+        <div class="finding-body">
+          <div>
+            <div class="finding-cell-label">Business Impact</div>
+            <div class="finding-cell-val">Excludes screen reader users from completing checkout. Also creates legal compliance risk in EU, UK, and US markets.</div>
+          </div>
+          <div>
+            <div class="finding-cell-label">Risk Level</div>
+            <div class="finding-cell-val sev-high">Legal risk + estimated 4–7% user exclusion</div>
+          </div>
+          <div>
+            <div class="finding-cell-label">Recommendation</div>
+            <div class="finding-cell-val">Add explicit &lt;label&gt; elements tied to each input via for/id. Do not rely on placeholder text as a label substitute.</div>
+          </div>
+          <div>
+            <div class="finding-cell-label">Expected Outcome</div>
+            <div class="finding-cell-val">WCAG AA compliance and elimination of legal exposure within 1 day of fix.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- DESKTOP VS MOBILE -->
+<section id="comparison" class="section" aria-label="Desktop vs mobile analysis">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">Device Analysis</div>
+      <h2>Desktop vs Mobile comparison</h2>
+      <p class="sec-sub">Your mobile experience scores 34 points lower than desktop — a significant gap with direct revenue consequences.</p>
+    </div>
+    <div class="comparison-grid">
+      <div class="device-card reveal">
+        <div class="device-frame">
+          <div class="device-screen device-screen-desktop" aria-label="Desktop layout preview">
+            <div class="device-mockup">
+              <div class="mockup-bar">
+                <div class="mockup-dot" style="background:#85594B;opacity:.6"></div>
+                <div class="mockup-dot" style="background:#C2CFDF;opacity:.6"></div>
+                <div class="mockup-dot" style="background:#2D7D5A;opacity:.6"></div>
+              </div>
+              <div class="mockup-content">
+                <div class="mockup-hero-block"></div>
+                <div class="mockup-row"></div>
+                <div class="mockup-row short"></div>
+                <div class="mockup-grid">
+                  <div class="mockup-block"></div>
+                  <div class="mockup-block"></div>
+                  <div class="mockup-block"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="device-info">
+          <div class="device-type">Desktop</div>
+          <div class="device-score-row">
+            <div class="device-score-n">82</div>
+            <span class="badge badge-medium">Good</span>
+          </div>
+          <div class="device-findings">
+            <div class="device-finding">
+              <span class="device-finding-dot ok" aria-hidden="true"></span>
+              Navigation is clear and well-structured
+            </div>
+            <div class="device-finding">
+              <span class="device-finding-dot ok" aria-hidden="true"></span>
+              Hero CTA has strong visual hierarchy
+            </div>
+            <div class="device-finding">
+              <span class="device-finding-dot" aria-hidden="true"></span>
+              Product grid spacing inconsistent at 1440px
+            </div>
+            <div class="device-finding">
+              <span class="device-finding-dot" aria-hidden="true"></span>
+              Footer overflows at ultrawide viewports
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="device-card reveal d1">
+        <div class="device-frame" style="background:var(--surface-2)">
+          <div class="device-screen device-screen-mobile" aria-label="Mobile layout preview">
+            <div class="device-mockup">
+              <div class="mockup-bar" style="height:20px">
+                <div class="mockup-dot" style="background:#C2CFDF;opacity:.5;width:5px;height:5px"></div>
+              </div>
+              <div class="mockup-content" style="padding:.5rem">
+                <div class="mockup-hero-block" style="height:55%"></div>
+                <div class="mockup-row" style="margin-top:.375rem"></div>
+                <div class="mockup-row short" style="margin-top:.3rem"></div>
+                <div style="height:22px;background:var(--border);border-radius:3px;margin-top:.4rem"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="device-info">
+          <div class="device-type">Mobile</div>
+          <div class="device-score-row">
+            <div class="device-score-n sev-critical">48</div>
+            <span class="badge badge-critical">Poor</span>
+          </div>
+          <div class="device-findings">
+            <div class="device-finding">
+              <span class="device-finding-dot" aria-hidden="true"></span>
+              Tap targets too small on checkout flow
+            </div>
+            <div class="device-finding">
+              <span class="device-finding-dot" aria-hidden="true"></span>
+              Horizontal scroll on product detail page
+            </div>
+            <div class="device-finding">
+              <span class="device-finding-dot" aria-hidden="true"></span>
+              Font size drops to 11px on some labels
+            </div>
+            <div class="device-finding">
+              <span class="device-finding-dot" aria-hidden="true"></span>
+              Images not serving WebP on mobile browsers
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- METRICS -->
+<section id="metrics" class="section section-alt" aria-label="Detailed metrics">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">Detailed Metrics</div>
+      <h2>47 data points analysed</h2>
+      <p class="sec-sub">Click any metric to expand the full analysis, recommendation, and expected impact.</p>
+    </div>
+    <div class="metrics-grid">
+
+      <div class="metric-card reveal" data-metric>
+        <div class="metric-card-head" role="button" tabindex="0" aria-expanded="false">
+          <div style="display:flex;align-items:center;gap:.75rem;flex:1;min-width:0">
+            <div class="metric-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <div>
+              <div class="metric-name">Page Speed</div>
+              <div class="metric-score-row">
+                <div class="metric-score sev-critical">42</div>
+                <span class="badge badge-critical">Critical</span>
+              </div>
+            </div>
+          </div>
+          <svg class="metric-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="metric-body">
+          <div class="metric-body-inner">
+            <div class="prog-bar" style="margin-top:1rem"><div class="prog-fill" style="width:42%;background:var(--warm)"></div></div>
+            <p>Your site takes 4.2 seconds to load on average mobile connections. Google's threshold for "good" is under 2.5s. You are currently in the bottom 25% of sites in your category.</p>
+            <div class="metric-why"><strong style="color:var(--text-sub)">Why it matters:</strong> A 1-second improvement in page load time increases mobile conversions by 7% on average (Google, 2023).</div>
+            <div class="metric-rec">
+              <div class="metric-rec-label">Recommendation</div>
+              Compress and convert images to WebP/AVIF, eliminate render-blocking resources, and implement lazy loading for below-the-fold content. Target: &lt;2.5s LCP.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-card reveal d1" data-metric>
+        <div class="metric-card-head" role="button" tabindex="0" aria-expanded="false">
+          <div style="display:flex;align-items:center;gap:.75rem;flex:1;min-width:0">
+            <div class="metric-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div>
+              <div class="metric-name">Accessibility</div>
+              <div class="metric-score-row">
+                <div class="metric-score sev-high">61</div>
+                <span class="badge badge-high">High</span>
+              </div>
+            </div>
+          </div>
+          <svg class="metric-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="metric-body">
+          <div class="metric-body-inner">
+            <div class="prog-bar" style="margin-top:1rem"><div class="prog-fill" style="width:61%;background:var(--brand)"></div></div>
+            <p>Multiple WCAG 2.1 AA failures detected including missing form labels, insufficient colour contrast on 8 elements, and missing keyboard focus indicators on interactive components.</p>
+            <div class="metric-why"><strong style="color:var(--text-sub)">Why it matters:</strong> 1 in 6 people globally has a disability. WCAG failures also create legal exposure in the EU, UK, and US.</div>
+            <div class="metric-rec">
+              <div class="metric-rec-label">Recommendation</div>
+              Audit all form fields for explicit labels, raise contrast ratios to minimum 4.5:1 for body text and 3:1 for large text, add visible focus rings to all interactive elements.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-card reveal d2" data-metric>
+        <div class="metric-card-head" role="button" tabindex="0" aria-expanded="false">
+          <div style="display:flex;align-items:center;gap:.75rem;flex:1;min-width:0">
+            <div class="metric-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
+            </div>
+            <div>
+              <div class="metric-name">Mobile UX</div>
+              <div class="metric-score-row">
+                <div class="metric-score sev-critical">48</div>
+                <span class="badge badge-critical">Critical</span>
+              </div>
+            </div>
+          </div>
+          <svg class="metric-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="metric-body">
+          <div class="metric-body-inner">
+            <div class="prog-bar" style="margin-top:1rem"><div class="prog-fill" style="width:48%;background:var(--warm)"></div></div>
+            <p>Your mobile experience has 6 tap target violations, horizontal overflow on 2 pages, and text smaller than 12px in 4 locations. 60% of your traffic is on mobile.</p>
+            <div class="metric-why"><strong style="color:var(--text-sub)">Why it matters:</strong> Poor mobile UX is the single largest driver of cart abandonment for e-commerce sites under $10M ARR.</div>
+            <div class="metric-rec">
+              <div class="metric-rec-label">Recommendation</div>
+              Implement a mobile-first design pass. Start with the checkout flow — fix tap targets, eliminate overflow, and increase font sizes to minimum 14px for body text.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-card reveal" data-metric>
+        <div class="metric-card-head" role="button" tabindex="0" aria-expanded="false">
+          <div style="display:flex;align-items:center;gap:.75rem;flex:1;min-width:0">
+            <div class="metric-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+            </div>
+            <div>
+              <div class="metric-name">Core Web Vitals</div>
+              <div class="metric-score-row">
+                <div class="metric-score sev-high">55</div>
+                <span class="badge badge-high">High</span>
+              </div>
+            </div>
+          </div>
+          <svg class="metric-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="metric-body">
+          <div class="metric-body-inner">
+            <div class="prog-bar" style="margin-top:1rem"><div class="prog-fill" style="width:55%;background:var(--brand)"></div></div>
+            <p>LCP: 4.2s (Poor), FID: 180ms (Needs improvement), CLS: 0.18 (Poor). All three Core Web Vitals are below Google's "Good" threshold — this directly impacts your search rankings.</p>
+            <div class="metric-why"><strong style="color:var(--text-sub)">Why it matters:</strong> Google uses CWV as a ranking signal. Sites with "Good" CWV scores rank 20% higher on average for competitive keywords.</div>
+            <div class="metric-rec">
+              <div class="metric-rec-label">Recommendation</div>
+              Prioritise LCP: preload hero image, reduce server response time. Fix CLS: reserve space for ads, images, and embeds. Target: LCP &lt;2.5s, CLS &lt;0.1, FID &lt;100ms.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-card reveal d1" data-metric>
+        <div class="metric-card-head" role="button" tabindex="0" aria-expanded="false">
+          <div style="display:flex;align-items:center;gap:.75rem;flex:1;min-width:0">
+            <div class="metric-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </div>
+            <div>
+              <div class="metric-name">Conversion UX</div>
+              <div class="metric-score-row">
+                <div class="metric-score sev-medium">67</div>
+                <span class="badge badge-medium">Medium</span>
+              </div>
+            </div>
+          </div>
+          <svg class="metric-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="metric-body">
+          <div class="metric-body-inner">
+            <div class="prog-bar" style="margin-top:1rem"><div class="prog-fill" style="width:67%;background:var(--blue-mid)"></div></div>
+            <p>CTA hierarchy is unclear on the homepage — three competing primary actions are visible above the fold. Trust indicators are absent from the checkout flow, increasing abandonment risk.</p>
+            <div class="metric-why"><strong style="color:var(--text-sub)">Why it matters:</strong> Clear CTA hierarchy and checkout trust signals (security badges, reviews) increase checkout completion by 12–18%.</div>
+            <div class="metric-rec">
+              <div class="metric-rec-label">Recommendation</div>
+              Define a single primary CTA per page. Add trust signals (SSL badge, return policy, customer reviews) adjacent to the checkout button.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-card reveal d2" data-metric>
+        <div class="metric-card-head" role="button" tabindex="0" aria-expanded="false">
+          <div style="display:flex;align-items:center;gap:.75rem;flex:1;min-width:0">
+            <div class="metric-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+            </div>
+            <div>
+              <div class="metric-name">SEO Signals</div>
+              <div class="metric-score-row">
+                <div class="metric-score sev-success">78</div>
+                <span class="badge badge-success">Good</span>
+              </div>
+            </div>
+          </div>
+          <svg class="metric-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="metric-body">
+          <div class="metric-body-inner">
+            <div class="prog-bar" style="margin-top:1rem"><div class="prog-fill" style="width:78%;background:var(--success)"></div></div>
+            <p>Meta titles and descriptions are present on 94% of pages. Structured data is implemented for products. One issue: 3 pages have duplicate H1 tags and 8 images are missing alt text.</p>
+            <div class="metric-why"><strong style="color:var(--text-sub)">Why it matters:</strong> Clean SEO signals improve crawlability and ranking — fixing the remaining issues could improve organic traffic by 5–10%.</div>
+            <div class="metric-rec">
+              <div class="metric-rec-label">Recommendation</div>
+              Fix duplicate H1s on product category pages. Add descriptive alt text to all product images. These are quick wins with meaningful SEO impact.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- VIEWPORT ANALYSIS -->
+<section class="section" aria-label="Viewport analysis">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">Viewport Analysis</div>
+      <h2>How your site performs across devices</h2>
+    </div>
+    <div class="viewport-grid">
+      <div class="viewport-card reveal">
+        <div class="viewport-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <div class="viewport-device">Desktop (1280px+)</div>
+        <div class="viewport-score">82</div>
+        <div style="margin-bottom:.875rem"><div class="prog-bar"><div class="prog-fill" style="width:82%;background:var(--blue-mid)"></div></div></div>
+        <ul class="viewport-findings">
+          <li>Navigation clearly structured</li>
+          <li>Hero CTA visible above fold</li>
+          <li>Product grid inconsistent spacing at 1440px</li>
+          <li>Footer overflow on ultrawide displays</li>
+        </ul>
+      </div>
+      <div class="viewport-card reveal d1">
+        <div class="viewport-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="18" x2="16" y2="18"/></svg>
+        </div>
+        <div class="viewport-device">Tablet (768px–1024px)</div>
+        <div class="viewport-score sev-medium">71</div>
+        <div style="margin-bottom:.875rem"><div class="prog-bar"><div class="prog-fill" style="width:71%;background:var(--blue-mid)"></div></div></div>
+        <ul class="viewport-findings">
+          <li>Two-column layout collapses awkwardly at 900px</li>
+          <li>Navigation hamburger triggers too early</li>
+          <li>Product cards sizing acceptable</li>
+          <li>Checkout sidebar drops below content</li>
+        </ul>
+      </div>
+      <div class="viewport-card reveal d2">
+        <div class="viewport-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
+        </div>
+        <div class="viewport-device">Mobile (320px–767px)</div>
+        <div class="viewport-score sev-critical">48</div>
+        <div style="margin-bottom:.875rem"><div class="prog-bar"><div class="prog-fill" style="width:48%;background:var(--warm)"></div></div></div>
+        <ul class="viewport-findings">
+          <li>6 tap targets below 44px minimum</li>
+          <li>Horizontal overflow on 2 pages</li>
+          <li>11px font found in 4 locations</li>
+          <li>Images not serving WebP format</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRIORITY STACK -->
+<section id="priority" class="section section-alt" aria-label="Priority action plan">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">Action Roadmap</div>
+      <h2>What to fix and when</h2>
+      <p class="sec-sub">Prioritised by business impact. Fix the highest-impact items first to see the fastest conversion improvement.</p>
+    </div>
+    <div class="priority-cols">
+      <div class="priority-col reveal">
+        <div class="priority-col-head">
+          <div class="priority-col-tier critical">Fix Immediately</div>
+          <div class="priority-col-title">Highest business impact</div>
+        </div>
+        <div class="priority-items">
+          <div class="priority-item">
+            <div class="priority-item-name">Fix mobile checkout tap targets</div>
+            <div class="priority-item-meta">
+              <div class="priority-meta-chip">Impact: <span>Critical</span></div>
+              <div class="priority-meta-chip">Effort: <span>Low (2–4hrs)</span></div>
+              <div class="priority-meta-chip">Lift: <span>+8–14%</span></div>
+            </div>
+          </div>
+          <div class="priority-item">
+            <div class="priority-item-name">Optimise images — compress 14 oversized assets</div>
+            <div class="priority-item-meta">
+              <div class="priority-meta-chip">Impact: <span>Critical</span></div>
+              <div class="priority-meta-chip">Effort: <span>Low (1–2hrs)</span></div>
+              <div class="priority-meta-chip">Lift: <span>+10–18%</span></div>
+            </div>
+          </div>
+          <div class="priority-item">
+            <div class="priority-item-name">Add accessible labels to 4 form fields</div>
+            <div class="priority-item-meta">
+              <div class="priority-meta-chip">Impact: <span>High</span></div>
+              <div class="priority-meta-chip">Effort: <span>Low (&lt;1hr)</span></div>
+              <div class="priority-meta-chip">Lift: <span>Legal fix</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="priority-col reveal d1">
+        <div class="priority-col-head">
+          <div class="priority-col-tier high">Fix This Week</div>
+          <div class="priority-col-title">Medium-priority improvements</div>
+        </div>
+        <div class="priority-items">
+          <div class="priority-item">
+            <div class="priority-item-name">Eliminate horizontal scroll on mobile product page</div>
+            <div class="priority-item-meta">
+              <div class="priority-meta-chip">Impact: <span>High</span></div>
+              <div class="priority-meta-chip">Effort: <span>Medium (4–8hrs)</span></div>
+              <div class="priority-meta-chip">Lift: <span>+4–6%</span></div>
+            </div>
+          </div>
+          <div class="priority-item">
+            <div class="priority-item-name">Clarify homepage CTA hierarchy — one primary action</div>
+            <div class="priority-item-meta">
+              <div class="priority-meta-chip">Impact: <span>High</span></div>
+              <div class="priority-meta-chip">Effort: <span>Low (2hrs)</span></div>
+              <div class="priority-meta-chip">Lift: <span>+5–9%</span></div>
+            </div>
+          </div>
+          <div class="priority-item">
+            <div class="priority-item-name">Add trust signals to checkout page</div>
+            <div class="priority-item-meta">
+              <div class="priority-meta-chip">Impact: <span>Medium</span></div>
+              <div class="priority-meta-chip">Effort: <span>Low (2–3hrs)</span></div>
+              <div class="priority-meta-chip">Lift: <span>+6–12%</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="priority-col reveal d2">
+        <div class="priority-col-head">
+          <div class="priority-col-tier medium">Nice To Have</div>
+          <div class="priority-col-title">Future enhancements</div>
+        </div>
+        <div class="priority-items">
+          <div class="priority-item">
+            <div class="priority-item-name">Improve tablet layout at 900px breakpoint</div>
+            <div class="priority-item-meta">
+              <div class="priority-meta-chip">Impact: <span>Medium</span></div>
+              <div class="priority-meta-chip">Effort: <span>Medium (6–10hrs)</span></div>
+              <div class="priority-meta-chip">Lift: <span>+2–4%</span></div>
+            </div>
+          </div>
+          <div class="priority-item">
+            <div class="priority-item-name">Fix duplicate H1 tags on category pages</div>
+            <div class="priority-item-meta">
+              <div class="priority-meta-chip">Impact: <span>Low</span></div>
+              <div class="priority-meta-chip">Effort: <span>Low (1hr)</span></div>
+              <div class="priority-meta-chip">Lift: <span>SEO gain</span></div>
+            </div>
+          </div>
+          <div class="priority-item">
+            <div class="priority-item-name">Serve WebP images for mobile browsers</div>
+            <div class="priority-item-meta">
+              <div class="priority-meta-chip">Impact: <span>Medium</span></div>
+              <div class="priority-meta-chip">Effort: <span>Medium (4hrs)</span></div>
+              <div class="priority-meta-chip">Lift: <span>+1–2%</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXEC SUMMARY -->
+<section class="section" aria-label="Executive summary">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">Executive Summary</div>
+      <h2>Business risk overview</h2>
+      <p class="sec-sub">Key findings and revenue impact estimates for leadership review.</p>
+    </div>
+    <div class="exec-grid">
+      <div class="exec-metrics">
+        <div class="exec-metric reveal">
+          <div class="exec-metric-n sev-critical">$84K</div>
+          <div class="exec-metric-l">Estimated annual revenue at risk from current issues</div>
+        </div>
+        <div class="exec-metric reveal d1">
+          <div class="exec-metric-n">+18–32%</div>
+          <div class="exec-metric-l">Projected conversion improvement after all fixes</div>
+        </div>
+        <div class="exec-metric reveal d2">
+          <div class="exec-metric-n">47</div>
+          <div class="exec-metric-l">Total findings across 6 audit categories</div>
+        </div>
+        <div class="exec-metric reveal d3">
+          <div class="exec-metric-n sev-success">3 weeks</div>
+          <div class="exec-metric-l">Estimated time to resolve all critical issues</div>
+        </div>
+      </div>
+      <div class="exec-findings">
+        <div class="exec-finding reveal">
+          <div class="exec-finding-icon critical" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div>
+            <div class="exec-finding-title">Mobile experience is critically underperforming</div>
+            <div class="exec-finding-desc">60% of traffic is on mobile but the mobile score is 48 vs 82 on desktop. This gap is the single largest revenue leak and requires immediate attention before any other work.</div>
+          </div>
+        </div>
+        <div class="exec-finding reveal d1">
+          <div class="exec-finding-icon critical" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div>
+            <div class="exec-finding-title">Page speed creates compounding losses</div>
+            <div class="exec-finding-desc">At 4.2s average load time, the site is losing visitors before they see the product. Every 1s improvement is worth approximately 7% in conversion rate — fixing speed alone could add $15–25K ARR.</div>
+          </div>
+        </div>
+        <div class="exec-finding reveal d2">
+          <div class="exec-finding-icon success" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div>
+            <div class="exec-finding-title">SEO fundamentals are solid</div>
+            <div class="exec-finding-desc">Structured data is implemented, meta tags are present on 94% of pages, and the site architecture is crawlable. Minor fixes to H1 tags and image alt text will solidify the SEO foundation.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERT REVIEW -->
+<section id="review" class="section section-alt" aria-label="Expert review">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">Expert Review</div>
+      <h2>Category-by-category analysis</h2>
+      <p class="sec-sub">Senior product and engineering perspectives on each dimension of your site's performance.</p>
+    </div>
+    <div class="review-list">
+
+      <div class="review-item reveal" data-review>
+        <div class="review-head" role="button" tabindex="0" aria-expanded="false">
+          <div style="display:flex;align-items:center;gap:.875rem;flex:1">
+            <div style="flex:1"><div class="review-title">User Experience &amp; Design</div></div>
+            <div class="review-score-chip badge badge-medium" style="font-size:.75rem;padding:.25rem .75rem">67 / 100</div>
+          </div>
+          <svg class="review-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="review-body">
+          <div class="review-body-inner">
+            <p class="review-summary">The desktop experience has a clear visual identity and reasonable information hierarchy. The primary gap is mobile — the design breaks down significantly below 768px, particularly on the product detail and checkout flows where users need the most guidance.</p>
+            <div class="review-cols">
+              <div class="review-col strengths">
+                <div class="review-col-label">Strengths</div>
+                <ul>
+                  <li>Desktop typography hierarchy is well-structured</li>
+                  <li>Brand identity is consistent across pages</li>
+                  <li>Product imagery quality is high</li>
+                </ul>
+              </div>
+              <div class="review-col weaknesses">
+                <div class="review-col-label">Weaknesses</div>
+                <ul>
+                  <li>Mobile layout breaks at checkout</li>
+                  <li>Competing CTAs reduce conversion clarity</li>
+                  <li>No trust signals near add-to-cart</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="review-item reveal d1" data-review>
+        <div class="review-head" role="button" tabindex="0" aria-expanded="false">
+          <div style="display:flex;align-items:center;gap:.875rem;flex:1">
+            <div style="flex:1"><div class="review-title">Technical Performance</div></div>
+            <div class="review-score-chip badge badge-critical" style="font-size:.75rem;padding:.25rem .75rem">42 / 100</div>
+          </div>
+          <svg class="review-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="review-body">
+          <div class="review-body-inner">
+            <p class="review-summary">Technical performance is the most urgent concern. Core Web Vitals are in the "Poor" range across all three metrics. The root causes are identifiable and fixable within a week without architectural changes — primarily image optimisation, resource loading order, and layout stability.</p>
+            <div class="review-cols">
+              <div class="review-col strengths">
+                <div class="review-col-label">Strengths</div>
+                <ul>
+                  <li>Server response time is under 400ms</li>
+                  <li>HTTPS properly configured</li>
+                  <li>No major JavaScript errors detected</li>
+                </ul>
+              </div>
+              <div class="review-col weaknesses">
+                <div class="review-col-label">Weaknesses</div>
+                <ul>
+                  <li>LCP: 4.2s — far above 2.5s threshold</li>
+                  <li>CLS: 0.18 — images without explicit dimensions</li>
+                  <li>14 images over 500KB uncompressed</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="review-item reveal d2" data-review>
+        <div class="review-head" role="button" tabindex="0" aria-expanded="false">
+          <div style="display:flex;align-items:center;gap:.875rem;flex:1">
+            <div style="flex:1"><div class="review-title">Accessibility &amp; Compliance</div></div>
+            <div class="review-score-chip badge badge-high" style="font-size:.75rem;padding:.25rem .75rem">61 / 100</div>
+          </div>
+          <svg class="review-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="review-body">
+          <div class="review-body-inner">
+            <p class="review-summary">Multiple WCAG 2.1 AA failures are present. The most urgent are the missing form labels in the checkout flow — these prevent screen readers from guiding users through the purchase process and create genuine legal exposure in key markets.</p>
+            <div class="review-cols">
+              <div class="review-col strengths">
+                <div class="review-col-label">Strengths</div>
+                <ul>
+                  <li>Skip navigation link is present</li>
+                  <li>Most images have alt text (92%)</li>
+                  <li>Colour contrast passing on primary text</li>
+                </ul>
+              </div>
+              <div class="review-col weaknesses">
+                <div class="review-col-label">Weaknesses</div>
+                <ul>
+                  <li>4 form fields missing accessible labels</li>
+                  <li>8 elements fail contrast at 3.8:1 (need 4.5:1)</li>
+                  <li>No focus ring visible on interactive elements</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="review-item reveal d3" data-review>
+        <div class="review-head" role="button" tabindex="0" aria-expanded="false">
+          <div style="display:flex;align-items:center;gap:.875rem;flex:1">
+            <div style="flex:1"><div class="review-title">SEO &amp; Discoverability</div></div>
+            <div class="review-score-chip badge badge-success" style="font-size:.75rem;padding:.25rem .75rem">78 / 100</div>
+          </div>
+          <svg class="review-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="review-body">
+          <div class="review-body-inner">
+            <p class="review-summary">SEO fundamentals are well-implemented. Structured data, canonical tags, and sitemap are all correctly configured. The remaining issues are minor — duplicate headings and missing alt text on a small number of images — and represent quick wins rather than major remediation work.</p>
+            <div class="review-cols">
+              <div class="review-col strengths">
+                <div class="review-col-label">Strengths</div>
+                <ul>
+                  <li>Product structured data is correctly implemented</li>
+                  <li>XML sitemap up to date</li>
+                  <li>Canonical tags present on all pages</li>
+                </ul>
+              </div>
+              <div class="review-col weaknesses">
+                <div class="review-col-label">Weaknesses</div>
+                <ul>
+                  <li>3 pages with duplicate H1 tags</li>
+                  <li>8 product images missing alt text</li>
+                  <li>CWV "Poor" rating affecting search rankings</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section class="section" aria-label="Improvement roadmap">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">Improvement Roadmap</div>
+      <h2>A 90-day implementation plan</h2>
+      <p class="sec-sub">Sequenced for maximum business impact with realistic effort estimates.</p>
+    </div>
+    <div class="roadmap-cols">
+      <div class="roadmap-col">
+        <div class="roadmap-col-label reveal">Immediate (Week 1–2)</div>
+        <div class="roadmap-items">
+          <div class="roadmap-item reveal d1">
+            <div class="roadmap-item-name">Compress and convert all images to WebP</div>
+            <div class="roadmap-meta">
+              <div class="roadmap-meta-row"><span class="roadmap-meta-label">Impact</span><span class="roadmap-meta-val sev-critical">Critical</span></div>
+              <div class="roadmap-meta-row"><span class="roadmap-meta-label">Effort</span><span class="roadmap-meta-val">1–2 hrs</span></div>
+              <div class="roadmap-meta-row"><span class="roadmap-meta-label">Estimated lift</span><span class="roadmap-meta-val">+10–18% speed</span></div>
+            </div>
+          </div>
+          <div class="roadmap-item reveal d2">
+            <div class="roadmap-item-name">Fix 6 mobile tap target violations in checkout</div>
+            <div class="roadmap-meta">
+              <div class="roadmap-meta-row"><span class="roadmap-meta-label">Impact</span><span class="roadmap-meta-val sev-critical">Critical</span></div>
+              <div class="roadmap-meta-row"><span class="roadmap-meta-label">Effort</span><span class="roadmap-meta-val">2–4 hrs</span></div>
+              <div class="roadmap-meta-row"><span class="roadmap-meta-label">Estimated lift</span><span class="roadmap-meta-val">+8–14% mobile CVR</span></div>
+            </div>
+          </div>
+          <div class="roadmap-item reveal d3">
+            <div class="roadmap-item-name">Add accessible labels to checkout form fields</div>
+            <div class="roadmap-meta">
+              <div class="roadmap-meta-row"><span class="roadmap-meta-label">Impact</span><span class="roadmap-meta-val sev-high">High</span></div>
+              <div class="roadmap-meta-row"><span class="roadmap-meta-label">Effort</span><span class="roadmap-meta-val">&lt;1 hr</span></div>
+              <div class="roadmap-meta-row"><span class="roadmap-meta-label">Estimated lift</span><span class="roadmap-meta-val">Compliance fix</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="roadmap-col">
+        <div class="roadmap-col-label reveal">Short-Term (Week 3–6)</div>
+        <div class="roadmap-items">
+          <div class="roadmap-item reveal d1">
+            <div class="roadmap-item-name">Eliminate mobile horizontal scroll on product page</div>
+            <div class="roadmap-meta">
+              <div class="roadmap-meta-row"><span class="roadmap-meta-label">Impact</span><span class="roadmap-meta-val sev-high">High</span></div>
+              <div class="roadmap-meta-row"><span class="roadmap-meta-label">Effort</span><span class="roadmap-meta-val">4–8 hrs</span></div>
+              <div class="roadmap-meta-row"><span class="roadmap-meta-label">Estimated lift</span><span class="roadmap-meta-val">+4–6% mobile CVR</span></div>
+            </div>
+          </div>
+          <div class="roadmap-item reveal d2">
+            <div class="roadmap-item-name">Redesign homepage CTA to single primary action</div>
+            <div class="roadmap-meta">
+              <div class="roadmap-meta-row"><span class="roadmap-meta-label">Impact</span><span class="roadmap-meta-val sev-high">High</span></div>
+              <div class="roadmap-meta-row"><span class="roadmap-meta-label">Effort</span><span class="roadmap-meta-val">2–4 hrs</span></div>
+              <div class="roadmap-meta-row"><span class="roadmap-meta-label">Estimated lift</span><span class="roadmap-meta-val">+5–9% homepage CVR</span></div>
+            </div>
+          </div>
+          <div class="roadmap-item reveal d3">
+            <div class="roadmap-item-name">Add security badges and reviews to checkout</div>
+            <div class="roadmap-meta">
+              <div class="roadmap-meta-row"><span class="roadmap-meta-label">Impact</span><span class="roadmap-meta-val sev-medium">Medium</span></div>
+              <div class="roadmap-meta-row"><span class="roadmap-meta-label">Effort</span><span class="roadmap-meta-val">2–3 hrs</span></div>
+              <div class="roadmap-meta-row"><span class="roadmap-meta-label">Estimated lift</span><span class="roadmap-meta-val">+6–12% checkout CVR</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="roadmap-col">
+        <div class="roadmap-col-label reveal">Long-Term (Week 7–12)</div>
+        <div class="roadmap-items">
+          <div class="roadmap-item reveal d1">
+            <div class="roadmap-item-name">Comprehensive mobile-first redesign of product pages</div>
+            <div class="roadmap-meta">
+              <div class="roadmap-meta-row"><span class="roadmap-meta-label">Impact</span><span class="roadmap-meta-val sev-medium">Medium</span></div>
+              <div class="roadmap-meta-row"><span class="roadmap-meta-label">Effort</span><span class="roadmap-meta-val">2–3 weeks</span></div>
+              <div class="roadmap-meta-row"><span class="roadmap-meta-label">Estimated lift</span><span class="roadmap-meta-val">+15–25% mobile CVR</span></div>
+            </div>
+          </div>
+          <div class="roadmap-item reveal d2">
+            <div class="roadmap-item-name">Implement Core Web Vitals performance budget</div>
+            <div class="roadmap-meta">
+              <div class="roadmap-meta-row"><span class="roadmap-meta-label">Impact</span><span class="roadmap-meta-val sev-high">High</span></div>
+              <div class="roadmap-meta-row"><span class="roadmap-meta-label">Effort</span><span class="roadmap-meta-val">1 week</span></div>
+              <div class="roadmap-meta-row"><span class="roadmap-meta-label">Estimated lift</span><span class="roadmap-meta-val">SEO + speed gains</span></div>
+            </div>
+          </div>
+          <div class="roadmap-item reveal d3">
+            <div class="roadmap-item-name">Full WCAG 2.1 AA compliance audit and remediation</div>
+            <div class="roadmap-meta">
+              <div class="roadmap-meta-row"><span class="roadmap-meta-label">Impact</span><span class="roadmap-meta-val sev-high">High</span></div>
+              <div class="roadmap-meta-row"><span class="roadmap-meta-label">Effort</span><span class="roadmap-meta-val">3–5 days</span></div>
+              <div class="roadmap-meta-row"><span class="roadmap-meta-label">Estimated lift</span><span class="roadmap-meta-val">Full compliance</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta" aria-label="Get started">
+  <div class="cta-inner">
+    <div>
+      <div class="cta-label">Ready to act on this?</div>
+      <h2 class="cta-heading">Businesses with similar issues improve conversions by 15–35% after implementing these recommendations.</h2>
+      <p class="cta-desc">Our team can implement every fix in this report, prioritised by ROI. Most clients see measurable conversion improvements within 3 weeks.</p>
+      <div class="cta-actions">
+        <a href="#" class="btn-cta-primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.45 2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.92z"/></svg>
+          Book Strategy Call
+        </a>
+        <a href="#" class="btn-cta-secondary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download Full Report
+        </a>
+      </div>
+      <div style="margin-top:1rem">
+        <button class="btn-cta-ghost">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Email this report instead
+        </button>
+      </div>
+    </div>
+    <div class="cta-trust">
+      <div class="trust-grid">
+        <div class="trust-card">
+          <div class="trust-card-n">47</div>
+          <div class="trust-card-l">Issues detected</div>
+        </div>
+        <div class="trust-card">
+          <div class="trust-card-n">12</div>
+          <div class="trust-card-l">Actionable fixes</div>
+        </div>
+        <div class="trust-card">
+          <div class="trust-card-n">3 wks</div>
+          <div class="trust-card-l">Estimated delivery</div>
+        </div>
+        <div class="trust-card">
+          <div class="trust-card-n">+26%</div>
+          <div class="trust-card-l">Avg. CVR uplift</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="footer-l">
+    <span class="footer-logo">DesignMeter</span>
+    &nbsp;·&nbsp; © 2025 All rights reserved
+  </div>
+  <div class="footer-r">
+    <a href="#hero">Back to top</a>
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+  </div>
+</footer>
+
+<script>
+/* Reveal */
+const io = new IntersectionObserver(
+  entries => entries.forEach(e => { if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)} }),
+  {threshold:0.07}
+);
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+/* Theme */
+const html=document.documentElement,btnL=document.getElementById('btnLight'),btnD=document.getElementById('btnDark');
+function setTheme(t){
+  html.setAttribute('data-theme',t);
+  btnL.classList.toggle('active',t==='light');
+  btnD.classList.toggle('active',t==='dark');
+  btnL.setAttribute('aria-pressed',String(t==='light'));
+  btnD.setAttribute('aria-pressed',String(t==='dark'));
+  try{localStorage.setItem('dm-theme',t)}catch(_){}
+}
+try{const s=localStorage.getItem('dm-theme');if(s==='dark')setTheme('dark')}catch(_){}
+btnL.addEventListener('click',()=>setTheme('light'));
+btnD.addEventListener('click',()=>setTheme('dark'));
+
+/* Mobile menu */
+const menu=document.getElementById('mobileMenu'),hbg=document.getElementById('hamburger');
+hbg.addEventListener('click',()=>{const o=menu.classList.toggle('open');hbg.setAttribute('aria-expanded',String(o))});
+function closeMobile(){menu.classList.remove('open');hbg.setAttribute('aria-expanded','false')}
+
+/* Metric expand/collapse */
+document.querySelectorAll('[data-metric]').forEach(card=>{
+  const head=card.querySelector('.metric-card-head');
+  head.addEventListener('click',()=>{
+    const open=card.classList.toggle('open');
+    head.setAttribute('aria-expanded',String(open));
+  });
+  head.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();head.click()}});
+});
+
+/* Review expand/collapse */
+document.querySelectorAll('[data-review]').forEach(item=>{
+  const head=item.querySelector('.review-head');
+  head.addEventListener('click',()=>{
+    const open=item.classList.toggle('open');
+    head.setAttribute('aria-expanded',String(open));
+  });
+  head.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();head.click()}});
+});
+
+/* Score ring animation */
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    const r=document.getElementById('heroRing');
+    if(r)r.style.strokeDashoffset='96'; /* 60% score = 40% empty */
+  },500);
+});
+</script>
+</body>
+</html>
